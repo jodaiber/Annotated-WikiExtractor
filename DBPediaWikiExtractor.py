@@ -51,9 +51,7 @@ class DBPediaWikiExtractor (WikiExtractor):
         dbpedia_wiki_document = DBPediaWikiDocument()
         dbpedia_wiki_document.fromWikiDocument(wiki_document)
         dbpedia_wiki_document.setAnnotations(annotations)
-        
-        print dbpedia_wiki_document
-        
+
         return dbpedia_wiki_document
 
 def main():
