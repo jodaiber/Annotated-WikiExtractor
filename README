@@ -1,0 +1,1 @@
+This project is a simple wrapper around the Wikipedia Extractor by Medialab (http://medialab.di.unipi.it/wiki/Wikipedia_Extractor). It generates a JSON object for each article that contains a set of anntations of DBPedia entities in the text.

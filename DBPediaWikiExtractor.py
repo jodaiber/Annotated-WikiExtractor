@@ -61,6 +61,35 @@ def main():
     compress = False
     file_size = 500 * 1024
     output_dir = '.'
+
+    for opt, arg in opts:
+        if opt == '--help':
+            show_help()
+            sys.exit()
+        elif opt == '--usage':
+            show_usage(sys.stdout, script_name)
+            sys.exit()
+        elif opt in ('-c', '--compress'):
+            compress = True
+        elif opt in ('-b', '--bytes'):
+            try:
+                if arg[-1] in 'kK':
+                    file_size = int(arg[:-1]) * 1024
+                elif arg[-1] in 'mM':
+                    file_size = int(arg[:-1]) * 1024 * 1024
+                else:
+                    file_size = int(arg)
+                if file_size < 200 * 1024: raise ValueError()
+            except ValueError:
+                show_size_error(script_name, arg)
+                sys.exit(2)
+        elif opt in ('-o', '--output'):
+            if os.path.isdir(arg):
+                output_dir = arg
+            else:
+                show_file_error(script_name, arg)
+                sys.exit(3)
+
     output_splitter = OutputSplitter(compress, file_size, output_dir)
     process_data(sys.stdin, wiki_extractor, output_splitter)
 
