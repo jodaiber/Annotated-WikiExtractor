@@ -56,8 +56,8 @@ class DBPediaWikiExtractor (WikiExtractor):
         return dbpedia_wiki_document
 
 def main():
-    wiki_extractor = DBPediaWikiExtractor()
     
+    script_name = os.path.basename(sys.argv[0])
     try:
         long_opts = ['help', 'usage', 'compress', 'bytes=', 'output=']
         opts, args = getopt.gnu_getopt(sys.argv[1:], 'cb:o:', long_opts)
@@ -98,6 +98,7 @@ def main():
                 show_file_error(script_name, arg)
                 sys.exit(3)
 
+    wiki_extractor = DBPediaWikiExtractor()
     output_splitter = OutputSplitter(compress, file_size, output_dir)
     process_data(sys.stdin, wiki_extractor, output_splitter)
 
