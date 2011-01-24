@@ -58,6 +58,14 @@ class DBPediaWikiExtractor (WikiExtractor):
 def main():
     wiki_extractor = DBPediaWikiExtractor()
     
+    try:
+        long_opts = ['help', 'usage', 'compress', 'bytes=', 'output=']
+        opts, args = getopt.gnu_getopt(sys.argv[1:], 'cb:o:', long_opts)
+    except getopt.GetoptError:
+        show_usage(sys.stderr, script_name)
+        show_suggestion(sys.stderr, script_name)
+        sys.exit(1)
+
     compress = False
     file_size = 500 * 1024
     output_dir = '.'
