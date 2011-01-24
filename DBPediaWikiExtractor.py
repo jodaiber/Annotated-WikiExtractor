@@ -40,6 +40,7 @@ class DBPediaWikiExtractor (WikiExtractor):
         annotations = []
         
         wiki_document = WikiExtractor.extract(self, wiki_document)
+        if not wiki_document: return None
         
         m = re.search('<a href="([^"]+)">([^>]+)</a>', wiki_document.text)
         while (m != None):
