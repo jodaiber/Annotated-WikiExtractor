@@ -4,6 +4,8 @@ This project is a simple wrapper around the Wikipedia Extractor by [Medialab](ht
 
 ## Annotations
 
+Annotations are sequentially stored in a list. A single annotation has the following form:
+
 	{"to": 1165, "from": 1156, "id": "Socialist", "label": "socialist"}
 	
 * `from`: start positon of the string
