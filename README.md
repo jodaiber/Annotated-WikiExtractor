@@ -39,3 +39,7 @@ As this is only an extention of the orgininal WikiExtractor, the usage is more o
 To convert the whole Wikipedia Dump to plain text, use the following command:
 
 	bzip2 -dc enwiki-20110115-pages-articles.xml.bz2 | python annotated_wikiextractor.py -o extracted/
+
+If you want the output files to be compressed, use the -c option:
+
+	bzip2 -dc enwiki-20110115-pages-articles.xml.bz2 | python annotated_wikiextractor.py -co extracted/
