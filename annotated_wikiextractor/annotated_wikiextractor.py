@@ -23,13 +23,38 @@
 #
 # =============================================================================
 
+"""Annotated Wikipedia Extractor:
+Extracts and cleans text from Wikipedia database dump and stores output in a
+number of files of similar size in a given directory. Each file contains
+several documents in JSON format (one document per line) with additional
+annotations for the links in the article.
+
+Usage:
+  annotated_wikiextractor.py [options]
+
+Options:
+  -k, --keep-anchors    : do not drop annotations for anchor links (e.g. Anarchism#gender)
+  -c, --compress        : compress output files using bzip2 algorithm
+  -b ..., --bytes=...   : put specified bytes per output file (500K by default)
+  -o ..., --output=...  : place output files in specified directory (current
+                          directory by default)
+  --help                : display this help and exit
+  --usage               : display script usage
+"""
+
+
+
 import re
 import json
 import urllib
+import getopt
+import sys
+import os
 
 import wikiextractor
 
 prefix = 'http://en.wikipedia.org/wiki/'
+keep_anchors = False
 
 """
 An extention of a WikiDocument, which also contains the annotations
@@ -37,12 +62,13 @@ of DBPedia entities referenced in the text.
 
 The serialization has been changed from XML to JSON. 
 """
-class DBPediaWikiDocument (dict):
+class AnnotatedWikiDocument (dict):
     
     __slots__ = ['default', 'id', 'url', 'text', 'annotations']
     
-    def __init__(self, default=None):
-        dict.__init__(self)
+    def __init__(self, wiki_document, default=None):
+        #dict.__init__(self)
+        self.fromWikiDocument(wiki_document)
         self.default = default
     
     def fromWikiDocument(self, wiki_document):
@@ -59,7 +85,7 @@ class DBPediaWikiDocument (dict):
 """
 
 """
-class DBPediaWikiExtractor (wikiextractor.WikiExtractor):
+class AnnotatedWikiExtractor (wikiextractor.WikiExtractor):
 
     def __init__(self):
         wikiextractor.WikiExtractor.__init__(self)
@@ -67,33 +93,98 @@ class DBPediaWikiExtractor (wikiextractor.WikiExtractor):
     def extract(self, wiki_document):
         annotations = []
         
+        #Extract the article using the general WikiExtractor:
         wiki_document = wikiextractor.WikiExtractor.extract(self, wiki_document)
         if not wiki_document: return None
         
-        while (True):
-            m = re.search('<a href="([^"]+)">([^>]+)</a>', wiki_document.text)
-            if m is None:
-                break
-            
-            if urllib.quote("#") not in m.group(1):
+        #This int is used to keep track of the difference between the original article with <a href="..">
+        #links and the new article that only contains the label of the link.
+        deltaStringLength = 0
+        
+        #As a first step, find all links in the article, save their positions into the annotations object
+        ms = re.finditer('<a href="([^"]+)">([^>]+)</a>', wiki_document.text)
+        
+        for m in ms:              
+            if urllib.quote("#") not in m.group(1) or keep_anchors:
                 annotations.append({
                     "id"    :   m.group(1), 
                     "label" :   m.group(2), 
-                    "from"  :   m.start(), 
-                    "to"    :   m.start() + len(m.group(2))
+                    "from"  :   m.start() - deltaStringLength, 
+                    "to"    :   m.start() + len(m.group(2)) - deltaStringLength
                 })
             
-            wiki_document.text = wiki_document.text[:m.start(0)] + m.group(2) + wiki_document.text[m.start(0)+len(m.group(0)):]
+            deltaStringLength += len(m.group(0)) - len(m.group(2))
+            
+            #wiki_document.text = wiki_document.text[:m.start(0)] + m.group(2) + wiki_document.text[m.start(0)+len(m.group(0)):]
         
-        dbpedia_wiki_document = DBPediaWikiDocument()
-        dbpedia_wiki_document.fromWikiDocument(wiki_document)
-        dbpedia_wiki_document.setAnnotations(annotations)
+        #As a second step, replace all links in the article by their label
+        wiki_document.text = re.sub('<a href="([^"]+)">([^>]+)</a>', lambda m: m.group(2), wiki_document.text)
+        
+        #Create a new AnnotatedWikiDocument
+        annotated_wiki_document = AnnotatedWikiDocument(wiki_document)
+        annotated_wiki_document.setAnnotations(annotations)
 
-        return dbpedia_wiki_document
+        #Return the AnnotatedWikiDocument
+        return annotated_wiki_document
 
 def main():
-    wikiextractor.WikiExtractor = DBPediaWikiExtractor
-    wikiextractor.main()
-     
+    script_name = os.path.basename(sys.argv[0])
+
+    try:
+        long_opts = ['help', 'usage', 'compress', 'bytes=', 'output=', 'keep-anchors']
+        opts, args = getopt.gnu_getopt(sys.argv[1:], 'kcb:o:', long_opts)
+    except getopt.GetoptError:
+        wikiextractor.show_usage(sys.stderr, script_name)
+        wikiextractor.show_suggestion(sys.stderr, script_name)
+        sys.exit(1)
+
+    compress = False
+    file_size = 500 * 1024
+    output_dir = '.'
+
+    for opt, arg in opts:
+        if opt == '--help':
+            show_help()
+            sys.exit()
+        elif opt == '--usage':
+            wikiextractor.show_usage(sys.stdout, script_name)
+            sys.exit()
+        elif opt in ('-k', '--keep-anchors'):
+            keep_anchors = True
+        elif opt in ('-c', '--compress'):
+            compress = True
+        elif opt in ('-b', '--bytes'):
+            try:
+                if arg[-1] in 'kK':
+                    file_size = int(arg[:-1]) * 1024
+                elif arg[-1] in 'mM':
+                    file_size = int(arg[:-1]) * 1024 * 1024
+                else:
+                    file_size = int(arg)
+                if file_size < 200 * 1024: raise ValueError()
+            except ValueError:
+                wikiextractor.show_size_error(script_name, arg)
+                sys.exit(2)
+        elif opt in ('-o', '--output'):
+            if os.path.isdir(arg):
+                output_dir = arg
+            else:
+                wikiextractor.show_file_error(script_name, arg)
+                sys.exit(3)
+
+    if len(args) > 0:
+        wikiextractor.show_usage(sys.stderr, script_name)
+        wikiextractor.show_suggestion(sys.stderr, script_name)
+        sys.exit(4)
+
+    wiki_extractor = AnnotatedWikiExtractor()
+    output_splitter = wikiextractor.OutputSplitter(compress, file_size, output_dir)
+    wikiextractor.process_data(sys.stdin, wiki_extractor, output_splitter)
+
+    output_splitter.close()
+
+def show_help():
+    print >> sys.stdout, __doc__,
+    
 if __name__ == '__main__':
     main()

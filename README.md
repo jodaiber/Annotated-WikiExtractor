@@ -13,3 +13,25 @@ Annotations are sequentially stored in a list. A single annotation has the follo
 * `id`: Wikipedia/DBPedia article name
 * `label`: the label of the link in the text (what part of the text was linked)
 
+## Usage
+
+As this is only an extention of the orgininal WikiExtractor, the usage is more or less the same.
+
+	$ python annotated_wikiextractor.py --help
+	Annotated Wikipedia Extractor:
+	Extracts and cleans text from Wikipedia database dump and stores output in a
+	number of files of similar size in a given directory. Each file contains
+	several documents in JSON format (one document per line) with additional
+	annotations for the links in the article.
+
+	Usage:
+	  annotated_wikiextractor.py [options]
+
+	Options:
+	  -k, --keep-anchors    : do not drop annotations for anchor links (e.g. Anarchism#gender)
+	  -c, --compress        : compress output files using bzip2 algorithm
+	  -b ..., --bytes=...   : put specified bytes per output file (500K by default)
+	  -o ..., --output=...  : place output files in specified directory (current
+	                          directory by default)
+	  --help                : display this help and exit
+	  --usage               : display script usage
