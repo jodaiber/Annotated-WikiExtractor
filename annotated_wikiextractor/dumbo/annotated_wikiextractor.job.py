@@ -1,3 +1,4 @@
+import annotated_wikiextractor.wikiextractor
 from annotated_wikiextractor.annotated_wikiextractor import \
     AnnotatedWikiExtractor
     
