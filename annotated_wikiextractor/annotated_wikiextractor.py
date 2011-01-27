@@ -83,7 +83,9 @@ class AnnotatedWikiDocument (dict):
         return json.dumps(self) + "\n"
 
 """
-
+An extended version of the WikiExtrator. Output is in JSON format and annotations
+are added for links in the article. See README.md for more information about the
+JSON format.
 """
 class AnnotatedWikiExtractor (wikiextractor.WikiExtractor):
 
