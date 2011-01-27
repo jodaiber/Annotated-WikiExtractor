@@ -46,11 +46,9 @@ class DBPediaWikiDocument (dict):
         self.default = default
     
     def fromWikiDocument(self, wiki_document):
-        self = {
-                "id" : wiki_document.id,
-                "url" : wiki_document.url,
-                "text" : wiki_document.text 
-                }
+        self["id"] = wiki_document.id,
+        self["url"] = wiki_document.url
+        self["text"] = wiki_document.text 
 
     def setAnnotations(self, annotations):
         self["annotations"] = annotations

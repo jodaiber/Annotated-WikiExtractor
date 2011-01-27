@@ -6,6 +6,7 @@ import json
 
 class TestAnnotatedWikiExtractor(unittest.TestCase):
     def setUp(self):
+        annotated_wikiextractor.wikiextractor.prefix = 'http://en.wikipedia.org/wiki/'
         self.wikiextractor = DBPediaWikiExtractor()
         
     """
@@ -17,7 +18,7 @@ class TestAnnotatedWikiExtractor(unittest.TestCase):
         wiki_document = annotated_wikiextractor.wikiextractor.extract_document(page)
         annotated_wiki_document = self.wikiextractor.extract(wiki_document)
         #json.dump(json.loads(str(annotated_wiki_document)), open("singlepage_annotated.json", "w"))
-        self.assertEquals(json.load(open("singlepage_annotated.json")), annotated_wiki_document)   
+        self.assertEquals(open("singlepage_annotated.json").read(), json.dumps(annotated_wiki_document))   
 
 if __name__ == '__main__':
     unittest.main()
