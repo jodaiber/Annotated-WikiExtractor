@@ -9,7 +9,6 @@ import annotated_wikiextractor.wikiextractor
 class TestAnnotatedWikiExtractor(unittest.TestCase):
     def setUp(self):
         
-        annotated_wikiextractor.wikiextractor.prefix = 'http://en.wikipedia.org/wiki/'
         self.annotated_wikiextractor = AnnotatedWikiExtractor()
         self.wikiextractor = WikiExtractor()
     

@@ -15,6 +15,11 @@ Annotations are sequentially stored in a list. A single annotation has the follo
 
 ## Usage
 
+The extractor can be run from the Terminal or on a Hadoop MapReduce
+cluster.
+
+### Bash
+
 As this is only an extention of the orgininal WikiExtractor, the usage is more or less the same.
 
 	$ python annotated_wikiextractor.py --help
@@ -43,3 +48,21 @@ To convert the whole Wikipedia Dump to plain text, use the following command:
 If you want the output files to be compressed, use the -c option:
 
 	bzip2 -dc enwiki-20110115-pages-articles.xml.bz2 | python annotated_wikiextractor.py -co extracted/
+
+### Hadoop MapReduce
+
+To run the extractor on a Hadoop MapReduce cluster, the Hadoop Streaming API can be used.
+
+	mapreduce jodaiber$ hadoop jar $HADOOP_PATH/contrib/streaming/hadoop-0.20.2-streaming.jar \
+	  -file ./mapper.py -mapper ./mapper.py \
+	  -inputreader "StreamXmlRecordReader,begin=<page>,end=</page>" \
+	  -input ../test/resources/wikien.xml \
+	  -output out
+
+In this case, the XML Dump must be available in HDFS (or locally, as is
+the case above) in its uncompressed form. The output will be written to
+the folder specified in the `-output` parameter and will have the following format:
+
+	Anarchism	{...}
+	Anaphora	{...}
+	[...]

@@ -67,7 +67,6 @@ class AnnotatedWikiDocument (dict):
     __slots__ = ['default', 'id', 'url', 'text', 'annotations']
     
     def __init__(self, wiki_document, default=None):
-        #dict.__init__(self)
         self.fromWikiDocument(wiki_document)
         self.default = default
     
@@ -90,6 +89,7 @@ JSON format.
 class AnnotatedWikiExtractor (wikiextractor.WikiExtractor):
 
     def __init__(self):
+        wikiextractor.prefix = 'http://en.wikipedia.org/wiki/'
         wikiextractor.WikiExtractor.__init__(self)
 
     def extract(self, wiki_document):
