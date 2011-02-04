@@ -116,9 +116,7 @@ class AnnotatedWikiExtractor (wikiextractor.WikiExtractor):
                 })
             
             deltaStringLength += len(m.group(0)) - len(m.group(2))
-            
-            #wiki_document.text = wiki_document.text[:m.start(0)] + m.group(2) + wiki_document.text[m.start(0)+len(m.group(0)):]
-        
+                
         #As a second step, replace all links in the article by their label
         wiki_document.text = re.sub('<a href="([^"]+)">([^>]+)</a>', lambda m: m.group(2), wiki_document.text)
         

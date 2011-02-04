@@ -82,4 +82,4 @@ the folder specified in the `-output` parameter and will have the following form
 
 	Anarchism	{...}
 	Anaphora	{...}
-	[...]
+	...

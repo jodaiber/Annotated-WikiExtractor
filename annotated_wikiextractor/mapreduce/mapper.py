@@ -11,6 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),"../.."))
 import annotated_wikiextractor
 from annotated_wikiextractor.annotated_wikiextractor import AnnotatedWikiExtractor
 
+#Use the standard AnnotatedWikiExtractor
 wiki_extractor = AnnotatedWikiExtractor()
 
 page = []
