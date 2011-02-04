@@ -2,9 +2,26 @@
 
 This project is a simple wrapper around the Wikipedia Extractor by [Medialab](http://medialab.di.unipi.it/wiki/Wikipedia_Extractor). It generates a JSON object for each article. The JSON object contains the id, title and plain text of the article, as well as annotations of article links in the text.
 
+# Output
+
+## JSON of a single article
+
+	{"url": "http://en.wikipedia.org/wiki/Anarchism", 
+	 "text": "Anarchism.\nAnarchism is a political philosophy which considers the state 
+		undesirable, unnecessary and harmful, and instead promotes a stateless society, or 
+		anarchy. It seeks to diminish ...", 
+	 "id": 12, 
+	 "annotations": [
+		{"to": 46, "from": 26, "id": "Political_philosophy", "label": "political philosophy"}, 
+		{"to": 72, "from": 67, "id": "State_(polity)", "label": "state"}, 
+		{"to": 163, "from": 156, "id": "Anarchy", "label": "anarchy"}, 
+		...
+	]}
+
+
 ## Annotations
 
-Annotations are sequentially stored in a list. A single annotation has the following form:
+Annotations are stored in an ordered list. A single annotation has the following form:
 
 	{"to": 1165, "from": 1156, "id": "Socialist", "label": "socialist"}
 	
@@ -13,12 +30,12 @@ Annotations are sequentially stored in a list. A single annotation has the follo
 * `id`: Wikipedia/DBPedia article name
 * `label`: the label of the link in the text (what part of the text was linked)
 
-## Usage
+# Usage
 
 The extractor can be run from the Terminal or on a Hadoop MapReduce
 cluster.
 
-### Bash
+## Bash
 
 As this is only an extention of the orgininal WikiExtractor, the usage is more or less the same.
 
@@ -49,7 +66,7 @@ If you want the output files to be compressed, use the -c option:
 
 	bzip2 -dc enwiki-20110115-pages-articles.xml.bz2 | python annotated_wikiextractor.py -co extracted/
 
-### Hadoop MapReduce
+## Hadoop MapReduce
 
 To run the extractor on a Hadoop MapReduce cluster, the Hadoop Streaming API can be used.
 
