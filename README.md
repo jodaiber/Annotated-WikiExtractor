@@ -68,6 +68,17 @@ If you want the output files to be compressed, use the -c option:
 
 ## Hadoop MapReduce
 
+### Output
+
+The output will be written to
+the folder specified in the `-output` parameter and will have the following format:
+
+	Anarchism	{...}
+	Anaphora	{...}
+	...
+
+### Processing uncompressed XML
+
 To run the extractor on a Hadoop MapReduce cluster, the Hadoop Streaming API can be used.
 
 	mapreduce jodaiber$ hadoop jar $HADOOP_PATH/contrib/streaming/hadoop-0.20.2-streaming.jar \
@@ -77,9 +88,30 @@ To run the extractor on a Hadoop MapReduce cluster, the Hadoop Streaming API can
 	  -output out
 
 In this case, the XML Dump must be available in HDFS (or locally, as is
-the case above) in its uncompressed form. The output will be written to
-the folder specified in the `-output` parameter and will have the following format:
+the case above) in its uncompressed form.
 
-	Anarchism	{...}
-	Anaphora	{...}
-	...
+### Processing compressed XML
+
+In the case of Wikipedia XML dumps, it is rather unhandy to process
+uncompressed XML. The uncompressed English Wikipedia dump, for example, 
+can be up to 25GB in size (compared to about 6GB in its original GZIP
+compression).
+
+To process compressed XML dumps, a change to `hadoop-XXX-core.jar` is
+necessary. These changes are documented as issue 
+[MAPREDUCE-589](https://issues.apache.org/jira/browse/MAPREDUCE-589) and
+should be applyed with care. For most use cases, the change is
+sufficient.
+
+To make the necessary change in Hadoop 0.20.2, replace the file `$HADOOP_PATH/hadoop-0.20.2-core.jar` 
+with the jar file provided in
+`annotated_wikiextractor/mapreduce/hadoop/hadoop-0.20.2-core.custom.jar`.
+
+The extractor can now be run with a custom version of `StreamXmlRecordReader`:
+
+	mapreduce jodaiber$ hadoop jar hadoop/hadoop-0.20.2-streaming.custom.jar \
+	  -file ./mapper.py -mapper ./mapper.py
+	  -inputreader "StreamXmlRecordReader,begin=<page>,end=</page>"
+	  -input ../test/resources/wikien.xml.gz
+	  -output out
+
