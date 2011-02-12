@@ -100,7 +100,7 @@ compression).
 To process compressed XML dumps, a change to `hadoop-XXX-core.jar` is
 necessary. These changes are documented as issue 
 [MAPREDUCE-589](https://issues.apache.org/jira/browse/MAPREDUCE-589) and
-should be applyed with care. For most use cases, the change is
+should be applied with care. For the use case of this project, the change is
 sufficient.
 
 To make the necessary change in Hadoop 0.20.2, replace the file `$HADOOP_PATH/hadoop-0.20.2-core.jar` 
@@ -110,8 +110,8 @@ with the jar file provided in
 The extractor can now be run with a custom version of `StreamXmlRecordReader`:
 
 	mapreduce jodaiber$ hadoop jar hadoop/hadoop-0.20.2-streaming.custom.jar \
-	  -file ./mapper.py -mapper ./mapper.py
-	  -inputreader "StreamXmlRecordReader,begin=<page>,end=</page>"
-	  -input ../test/resources/wikien.xml.gz
+	  -file ./mapper.py -mapper ./mapper.py \
+	  -inputreader "StreamXmlRecordReader,begin=<page>,end=</page>" \
+	  -input ../test/resources/wikien.xml.gz \
 	  -output out
 
