@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import pickle
+import marshal
 
 page = []
 for line in sys.stdin:
@@ -9,6 +9,6 @@ for line in sys.stdin:
     if line == '<page>':
         page = []
     elif line == '</page>':
-        print pickle.dumps(page)
+        print marshal.dumps(page)
     else:
         page.append(line)

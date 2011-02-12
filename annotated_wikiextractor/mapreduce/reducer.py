@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import pickle
 import sys
 import os
+import marshal
 
 #Add the folder containing annotated_wikiextractor to the PYTHON_PATH, so
 #it can be executed in hadoop 
@@ -18,7 +18,7 @@ wiki_extractor = AnnotatedWikiExtractor()
 for line in sys.stdin:
     # remove leading and trailing whitespace
     line = line.strip()
-    page = pickle.loads(line)
+    page = marshal.loads(line)
     wiki_document = annotated_wikiextractor.wikiextractor.extract_document(page)
     annotated_wiki_document = wiki_extractor.extract(wiki_document)
     print "%s\t%s" % (annotated_wiki_document["url"].replace(annotated_wikiextractor.wikiextractor.prefix, ""), annotated_wiki_document)
