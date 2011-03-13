@@ -3,6 +3,7 @@
 #  Version: 0.1 (Jan 26, 2010)
 #  Author: Joachim Daiber (jo.daiber@fu-berlin.de)
 # =============================================================================
+from multiprocessing import Pool
 
 # =============================================================================
 #
@@ -54,6 +55,7 @@ import os
 import wikiextractor
 
 prefix = 'http://en.wikipedia.org/wiki/'
+number_of_workers = 2
 keep_anchors = False
 
 """
@@ -109,10 +111,9 @@ class AnnotatedWikiExtractor (wikiextractor.WikiExtractor):
         for m in ms:              
             if urllib.quote("#") not in m.group(1) or keep_anchors:
                 annotations.append({
-                    "id"    :   m.group(1), 
-                    "label" :   m.group(2), 
-                    "from"  :   m.start() - deltaStringLength, 
-                    "to"    :   m.start() + len(m.group(2)) - deltaStringLength
+                    "uri"    :   m.group(1), 
+                    "surface_form" :   m.group(2), 
+                    "offset"  :   m.start() - deltaStringLength
                 })
             
             deltaStringLength += len(m.group(0)) - len(m.group(2))
@@ -126,6 +127,25 @@ class AnnotatedWikiExtractor (wikiextractor.WikiExtractor):
 
         #Return the AnnotatedWikiDocument
         return annotated_wiki_document
+    
+
+def process_data(input_file, wiki_extractor, output_splitter):
+    
+    # Set up pool of worker processes
+    pool = Pool(processes=number_of_workers)
+    
+    page = []
+    for line in input_file:
+        line = line.decode('utf-8').strip()
+        if line == '<page>':
+            page = []
+        elif line == '</page>':
+            pool.apply_async(wikiextractor.process_page, (page, wiki_extractor, output_splitter))
+        else:
+            page.append(line)
+
+    # Wait for the worker processes to finish
+    pool.join()
 
 def main():
     script_name = os.path.basename(sys.argv[0])
