@@ -127,7 +127,15 @@ class AnnotatedWikiExtractor (wikiextractor.WikiExtractor):
 
         #Return the AnnotatedWikiDocument
         return annotated_wiki_document
-    
+
+def process_page(page, wiki_extractor):
+    wiki_document = wikiextractor.extract_document(page)
+    if not wiki_document: return
+
+    wiki_document = wiki_extractor.extract(wiki_document)
+    if not wiki_document: return
+
+    return wiki_document.__str__().encode('utf-8')
 
 def process_data(input_file, wiki_extractor, output_splitter):
     
@@ -140,12 +148,16 @@ def process_data(input_file, wiki_extractor, output_splitter):
         if line == '<page>':
             page = []
         elif line == '</page>':
-            pool.apply_async(wikiextractor.process_page, (page, wiki_extractor, output_splitter))
+            pool.apply_async(process_page, [page, wiki_extractor], callback=output_splitter.write)
         else:
             page.append(line)
 
+    # Close the process pool
+    pool.close()
+    
     # Wait for the worker processes to finish
     pool.join()
+
 
 def main():
     script_name = os.path.basename(sys.argv[0])
@@ -199,7 +211,7 @@ def main():
 
     wiki_extractor = AnnotatedWikiExtractor()
     output_splitter = wikiextractor.OutputSplitter(compress, file_size, output_dir)
-    wikiextractor.process_data(sys.stdin, wiki_extractor, output_splitter)
+    process_data(sys.stdin, wiki_extractor, output_splitter)
 
     output_splitter.close()
 
