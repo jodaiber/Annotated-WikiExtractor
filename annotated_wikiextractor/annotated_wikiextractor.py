@@ -128,7 +128,7 @@ class AnnotatedWikiExtractor (wikiextractor.WikiExtractor):
         #Return the AnnotatedWikiDocument
         return annotated_wiki_document
 
-def process_page(page, wiki_extractor):
+def process_page(page):
     wiki_document = wikiextractor.extract_document(page)
     if not wiki_document: return
 
@@ -137,26 +137,30 @@ def process_page(page, wiki_extractor):
 
     return wiki_document.__str__().encode('utf-8')
 
+
 def process_data(input_file, wiki_extractor, output_splitter):
     
     # Set up pool of worker processes
     pool = Pool(processes=number_of_workers)
     
+    pages = []    
     page = []
+    
     for line in input_file:
         line = line.decode('utf-8').strip()
         if line == '<page>':
             page = []
         elif line == '</page>':
-            pool.apply_async(process_page, [page, wiki_extractor], callback=(lambda x: output_splitter.write(x) if x is not None else None))
+            if len(pages) < 10000 :
+                pages.append(page)
+            else:
+                map((lambda x: output_splitter.write(x) if x is not None else None), pool.map(process_page, pages))
+                pages = []
         else:
             page.append(line)
 
-    # Close the process pool
-    pool.close()
-    
-    # Wait for the worker processes to finish
-    pool.join()
+    if len(pages) > 0:
+        map((lambda x: output_splitter.write(x) if x is not None else None), pool.map(process_page, pages))
 
 
 def main():
@@ -219,4 +223,5 @@ def show_help():
     print >> sys.stdout, __doc__,
     
 if __name__ == '__main__':
+    wiki_extractor = AnnotatedWikiExtractor()
     main()
