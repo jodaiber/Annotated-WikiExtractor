@@ -148,7 +148,7 @@ def process_data(input_file, wiki_extractor, output_splitter):
         if line == '<page>':
             page = []
         elif line == '</page>':
-            pool.apply_async(process_page, [page, wiki_extractor], callback=output_splitter.write)
+            pool.apply_async(process_page, [page, wiki_extractor], callback=(lambda x: output_splitter.write(x) if x is not None else None))
         else:
             page.append(line)
 
