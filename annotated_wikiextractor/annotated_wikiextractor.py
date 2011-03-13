@@ -55,7 +55,7 @@ import os
 import wikiextractor
 
 prefix = 'http://en.wikipedia.org/wiki/'
-number_of_workers = 2
+number_of_workers = 4
 keep_anchors = False
 
 """
